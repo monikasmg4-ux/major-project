@@ -886,7 +886,8 @@ app.get("/api/analytics/stats", async (req, res) => {
 // ──────────────────────────────────────────────
 
 // Client SPA route fallback for non-API endpoints
-app.get("*", (req, res, next) => {
+app.use((req, res, next) => {
+  if (req.method !== "GET") return next();
   if (req.path.startsWith("/api/")) {
     return res.status(404).json({ success: false, message: `API route ${req.path} not found.` });
   }
