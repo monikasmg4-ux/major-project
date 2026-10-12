@@ -3,9 +3,7 @@
    Decentralized Land Title, AI OCR & Fraud Detection
    ═══════════════════════════════════════════════════════ */
 
-const API_BASE = (typeof window !== "undefined" && window.location.origin && window.location.origin.includes(":5000"))
-  ? window.location.origin
-  : "http://localhost:5000";
+const API_BASE = "http://localhost:5000";
 
 // Global App State
 let allLands = [];
@@ -1568,4 +1566,10 @@ function getRiskColor(prob) {
 
 function formatDate(dateStr) {
   if (!dateStr) return "—";
-  const date 
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric"
+  });
+}

@@ -885,15 +885,12 @@ app.get("/api/analytics/stats", async (req, res) => {
 //  10. Client SPA Fallback & Global Error Handler
 // ──────────────────────────────────────────────
 
-// Client SPA route fallback for non-API endpoints (Express 5 compatible)
-app.use((req, res, next) => {
-  if (req.method === "GET" && !req.path.startsWith("/api/")) {
-    return res.sendFile(path.join(__dirname, "..", "frontend", "index.html"));
-  }
+// Client SPA route fallback for non-API endpoints
+app.get("*", (req, res, next) => {
   if (req.path.startsWith("/api/")) {
     return res.status(404).json({ success: false, message: `API route ${req.path} not found.` });
   }
-  next();
+  res.sendFile(path.join(__dirname, "..", "frontend", "index.html"));
 });
 
 // Global error handling middleware (handles Multer limits, malformed payloads, etc.)
