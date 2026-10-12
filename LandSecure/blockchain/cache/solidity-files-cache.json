@@ -1,0 +1,40 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "C:\\Users\\monik\\OneDrive\\Desktop\\project\\LandSecure\\blockchain\\contracts\\LandRegistry.sol": {
+      "lastModificationDate": 1791735900958,
+      "contentHash": "ac14f532e3a721109662544a93f624b5",
+      "sourceName": "contracts/LandRegistry.sol",
+      "solcConfig": {
+        "version": "0.8.19",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.19"
+      ],
+      "artifacts": [
+        "LandRegistry"
+      ]
+    }
+  }
+}

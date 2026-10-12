@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LandSecure — Next-Gen Decentralized Land Title & Fraud Detection</title>
+  <meta name="description" content="Decentralized land registration system powered by blockchain document notarization, machine learning fraud risk scoring, and AI OCR mismatch detection.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Kannada:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Leaflet CSS for Cadastral Maps -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+
+<body>
+
+  <div class="app-wrapper">
+
+    <!-- ══════════════════════════════════════════════
+         SIDEBAR NAVIGATION (oxland.in layout)
+         ══════════════════════════════════════════════ -->
+    <aside class="app-sidebar" id="appSidebar">
+      <div class="sidebar-header">
+        <div class="brand-emblem">🔒</div>
+        <div class="brand-details">
+          <span class="brand-title" id="txtBrandTitle">LandSecure</span>
+          <span class="brand-subtitle" id="txtBrandSubtitle">Karnataka Portal</span>
+        </div>
+        <button class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Close Sidebar" title="Close Sidebar">&times;</button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title" id="txtNavSectionMain">Main Service</div>
+
+        <a class="sidebar-link active" data-section="dashboard" id="nav-dashboard">
+          <span class="sidebar-icon">📊</span>
+          <span class="nav-text" id="navTextDashboard">Dashboard</span>
+        </a>
+
+        <a class="sidebar-link" data-section="register" id="nav-register">
+          <span class="sidebar-icon">📝</span>
+          <span class="nav-text" id="navTextRegister">Register Land</span>
+        </a>
+
+        <a class="sidebar-link" data-section="lands" id="nav-lands">
+          <span class="sidebar-icon">📋</span>
+          <span class="nav-text" id="navTextLands">All Applications</span>
+          <span class="sidebar-badge" id="badgeTotalLands">0</span>
+        </a>
+
+        <div class="nav-section-title" id="txtNavSectionAI">AI & Verification</div>
+
+        <a class="sidebar-link" data-section="scanner" id="nav-scanner">
+          <span class="sidebar-icon">🔍</span>
+          <span class="nav-text" id="navTextScanner">AI Document Scanner</span>
+        </a>
+
+        <a class="sidebar-link" data-section="fraud" id="nav-fraud">
+          <span class="sidebar-icon">🚩</span>
+          <span class="nav-text" id="navTextFraud">AI Fraud Risk Center</span>
+          <span class="sidebar-badge danger" id="badgeFlaggedCount">0</span>
+        </a>
+
+        <a class="sidebar-link" data-section="map" id="nav-map">
+          <span class="sidebar-icon">🗺️</span>
+          <span class="nav-text" id="navTextMap">Interactive Land Map</span>
+        </a>
+
+        <div class="nav-section-title" id="txtNavSectionBlockchain">Audit & Governance</div>
+
+        <a class="sidebar-link" data-section="blockchain" id="nav-blockchain">
+          <span class="sidebar-icon">⛓️</span>
+          <span class="nav-text" id="navTextBlockchain">Blockchain Explorer</span>
+        </a>
+
+        <a class="sidebar-link" data-section="timeline" id="nav-timeline">
+          <span class="sidebar-icon">📜</span>
+          <span class="nav-text" id="navTextTimeline">Audit & Ownership</span>
+        </a>
+
+        <a class="sidebar-link" data-section="checklist" id="nav-checklist">
+          <span class="sidebar-icon">📑</span>
+          <span class="nav-text" id="navTextChecklist">Document Checklist</span>
+        </a>
+
+        <a class="sidebar-link" data-section="fees" id="nav-fees">
+          <span class="sidebar-icon">💰</span>
+          <span class="nav-text" id="navTextFees">Fee Estimator</span>
+        </a>
+
+        <a class="sidebar-link" data-section="assistant" id="nav-assistant">
+          <span class="sidebar-icon">🌐</span>
+          <span class="nav-text" id="navTextAssistant">Citizen Assistant (ಕನ್ನಡ)</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="system-status-indicator">
+          <div class="status-dot"></div>
+          <div>
+            <div style="font-weight: 600; color: var(--text-primary);" id="lblNodeStatus">Hardhat / Ledger Active</div>
+            <div style="font-size: 0.7rem; color: var(--text-muted);" id="lblBlockHeight">Block #1422 &bull; Synced</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ══════════════════════════════════════════════
+         MAIN CONTENT AREA
+         ══════════════════════════════════════════════ -->
+    <div class="app-main">
+
+      <!-- ── Top Header ── -->
+      <header class="app-header">
+        <div class="header-left">
+          <button class="sidebar-toggle-btn" id="sidebarToggle" aria-label="Toggle Sidebar">☰</button>
+          <div class="portal-tagline">
+            <span>🏛️ Kaveri 2.0 / Bhoomi Integration</span>
+            <span style="color: var(--text-muted);">|</span>
+            <span id="txtHeaderTagline">Next-Gen Land Registry & Fraud Prevention</span>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <!-- Language Toggle -->
+          <button class="lang-toggle-btn" id="langToggleBtn" title="Switch English / ಕನ್ನಡ">
+            <span>🌐</span>
+            <span id="txtCurrentLang">ಕನ್ನಡ</span>
+          </button>
+
+          <!-- User Role & OTP Login -->
+          <div class="user-role-card" id="userRoleCard">
+            <div class="user-avatar" id="userAvatar">C</div>
+            <div class="user-meta">
+              <span class="user-name" id="userNameDisplay">Citizen User</span>
+              <span class="user-role-pill" id="userRoleDisplay">CITIZEN</span>
+            </div>
+          </div>
+
+          <button class="btn-header-auth" id="btnOpenAuthModal">
+            <span>🔐</span>
+            <span id="txtAuthBtnLabel">Email OTP Login</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- ── Viewport Views ── -->
+      <main class="app-content">
+
+        <!-- ──────────────────────────────────────────────
+             1. DASHBOARD
+             ────────────────────────────────────────────── -->
+        <section id="dashboard" class="view-section active">
+          <div class="view-header">
+            <div>
+              <h1 class="view-header-title" id="txtDashTitle">Dashboard & Land Registry Overview</h1>
+              <p class="view-header-desc" id="txtDashDesc">Real-time statistics of registered titles, ML fraud screenings, and blockchain records.</p>
+            </div>
+            <button class="btn-primary" onclick="switchView('register')">
+              <span>➕</span> <span id="btnQuickRegister">Register New Land</span>
+            </button>
+          </div>
+
+          <!-- Stats Grid -->
+          <div class="stats-grid">
+            <div class="stat-card total">
+              <div class="stat-icon total">📊</div>
+              <div class="stat-content">
+                <span class="stat-value" id="statTotal">0</span>
+                <span class="stat-label" id="lblStatTotal">Total Applications</span>
+              </div>
+            </div>
+
+            <div class="stat-card genuine">
+              <div class="stat-icon genuine">✅</div>
+              <div class="stat-content">
+                <span class="stat-value" id="statGenuine">0</span>
+                <span class="stat-label" id="lblStatGenuine">Genuine Registered</span>
+              </div>
+            </div>
+
+            <div class="stat-card flagged">
+              <div class="stat-icon flagged">🚩</div>
+              <div class="stat-content">
+                <span class="stat-value" id="statFlagged">0</span>
+                <span class="stat-label" id="lblStatFlagged">Flagged for Fraud</span>
+              </div>
+            </div>
+
+            <div class="stat-card review">
+              <div class="stat-icon review">⏳</div>
+              <div class="stat-content">
+                <span class="stat-value" id="statReview">0</span>
+                <span class="stat-label" id="lblStatReview">Under Review</span>
+              </div>
+            </div>
+
+            <div class="stat-card blockchain">
+              <div class="stat-icon blockchain">⛓️</div>
+              <div class="stat-content">
+                <span class="stat-value" id="statBlockchain">0</span>
+                <span class="stat-label" id="lblStatBlockchain">On-Chain Proofs</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Analytics Split Grid -->
+          <div class="dashboard-split-grid">
+            <div class="card">
+              <h2 class="card-title">📈 Application Verification Breakdown</h2>
+              <p class="card-subtitle">Distribution of genuine titles vs fraud alerts & pending reviews</p>
+              <div style="height: 240px; position: relative;">
+                <canvas id="statusChart"></canvas>
+              </div>
+            </div>
+
+            <div class="card">
+              <h2 class="card-title">🏛️ Registrations by Karnataka District</h2>
+              <p class="card-subtitle">Volume of cadastral applications recorded per revenue zone</p>
+              <div style="height: 240px; position: relative;">
+                <canvas id="districtChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Applications Table -->
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <div>
+                <h2 class="card-title">📋 Recent Land Title Applications</h2>
+                <p class="card-subtitle" style="margin-bottom: 0;">Latest deeds submitted for cryptographic anchoring and ML scoring</p>
+              </div>
+              <button class="btn-secondary" onclick="switchView('lands')">View All Records &rarr;</button>
+            </div>
+
+            <div class="table-responsive">
+              <table id="recentTable">
+                <thead>
+                  <tr>
+                    <th>Land ID</th>
+                    <th>Survey No.</th>
+                    <th>District / Taluk</th>
+                    <th>Area (sq.ft)</th>
+                    <th>Owner</th>
+                    <th>Status</th>
+                    <th>Risk Score</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="recentTableBody">
+                  <tr>
+                    <td colspan="8" style="text-align: center; padding: 28px; color: var(--text-muted);">
+                      Loading land records from MongoDB...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ──────────────────────────────────────────────
+             2. REGISTER NEW LAND
+             ────────────────────────────────────────────── -->
+        <section id="register" class="view-section">
+          <div class="view-header">
+            <div>
+              <h1 class="view-header-title" id="txtRegTitle">Register New Land Parcel</h1>
+              <p class="view-header-desc" id="txtRegDesc">Submit deed and boundary parameters for automated OCR mismatch analysis, ML fraud evaluation, and blockchain notarization.</p>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 24px;">
+            <!-- Form Card -->
+            <div class="card">
+              <h2 class="card-title">📝 Application & Property Particulars</h2>
+              <p class="card-subtitle">Enter property survey details matching your official RTC/Pahani or Sale Deed</p>
+
+              <form id="landRegisterForm">
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="regLandId">
+                      <span>Land ID / Application No.</span>
+                      <span class="label-hint">Unique reference</span>
+                    </label>
+                    <input type="text" id="regLandId" placeholder="e.g. KA-BLR-2005" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="regSurveyNumber">
+                      <span>Survey Number (ಸರ್ವೆ ನಂ.)</span>
+                      <span class="label-hint">e.g. 452/3</span>
+                    </label>
+                    <input type="text" id="regSurveyNumber" placeholder="e.g. 452/3" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="regDistrict">District (ಜಿಲ್ಲೆ)</label>
+                    <select id="regDistrict">
+                      <option value="Bengaluru Urban">Bengaluru Urban (ಬೆಂಗಳೂರು ನಗರ)</option>
+                      <option value="Bengaluru Rural">Bengaluru Rural (ಬೆಂಗಳೂರು ಗ್ರಾಮಾಂತರ)</option>
+                      <option value="Mysuru">Mysuru (ಮೈಸೂರು)</option>
+                      <option value="Tumakuru">Tumakuru (ತುಮಕೂರು)</option>
+                      <option value="Dharwad">Dharwad (ಧಾರವಾಡ)</option>
+                      <option value="Dakshina Kannada">Dakshina Kannada (ದಕ್ಷಿಣ ಕನ್ನಡ)</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="regLocation">Location / Village / Hobli</label>
+                    <input type="text" id="regLocation" placeholder="e.g. Devanahalli, Bengaluru" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="regArea">
+                      <span>Area in sq. ft. (ವಿಸ್ತೀರ್ಣ)</span>
+                      <span class="label-hint">Numeric only</span>
+                    </label>
+                    <input type="number" id="regArea" placeholder="e.g. 1200" min="50" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="regTxType">Transaction Type (ವಹಿವಾಟಿನ ವಿಧ)</label>
+                    <select id="regTxType">
+                      <option value="Absolute Sale">Absolute Sale Deed (ಖರೀದಿ ಪತ್ರ)</option>
+                      <option value="Gift Deed">Gift Deed (ದಾನ ಪತ್ರ)</option>
+                      <option value="Inheritance (Pouthi Khata)">Inheritance / Pouthi Khata (ವಾರಸುದಾರಿಕೆ ಖಾತೆ)</option>
+                      <option value="Partition Deed">Partition Deed (ವಿಭಾಗ ಪತ್ರ)</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="regOwnerName">Current Owner / Purchaser Name</label>
+                    <input type="text" id="regOwnerName" placeholder="e.g. Ravi Kumar" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="regOwnerId">Owner ID (Aadhaar / PAN)</label>
+                    <input type="text" id="regOwnerId" placeholder="e.g. AADHAAR-9012-3456-7890" required>
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label for="regOwnerEmail">
+                      <span>Owner Email (for OTP alerts & updates)</span>
+                      <span class="label-hint">Status notifications will be sent here</span>
+                    </label>
+                    <input type="email" id="regOwnerEmail" placeholder="e.g. citizen@example.com">
+                  </div>
+                </div>
+
+                <!-- Document Upload & OCR Discrepancy Detector -->
+                <div style="margin-top: 10px; margin-bottom: 24px;">
+                  <label style="margin-bottom: 8px;">
+                    <span>📁 Upload Sale Deed / RTC Extract for AI OCR Check</span>
+                    <span class="label-hint">PDF or Text Extract</span>
+                  </label>
+
+                  <div class="file-dropzone" id="regDropzone">
+                    <div class="dropzone-icon">📄</div>
+                    <div class="dropzone-text" id="regFileLabel">Drag and drop Deed / Pahani document here, or click to browse</div>
+                    <div class="dropzone-sub">Our AI OCR will extract area & survey numbers to detect inconsistencies before submission</div>
+                    <input type="file" id="regFileInput" style="display: none;" accept=".pdf,.txt,.doc,.docx,.png,.jpg">
+                  </div>
+
+                  <!-- Quick Preset Samples for instant demo -->
+                  <div style="margin-top: 12px;">
+                    <div style="font-size: 0.76rem; color: var(--text-muted); margin-bottom: 6px;">⚡ Quick Test Presets (Click to autofill & test OCR scanner):</div>
+                    <div class="sample-presets-bar">
+                      <button type="button" class="btn-preset" onclick="fillRegisterPreset('genuine')">
+                        ✅ Genuine Deed (1,200 sq.ft & Sy 452/3)
+                      </button>
+                      <button type="button" class="btn-preset mismatch" onclick="fillRegisterPreset('mismatch')">
+                        ⚠️ Area Mismatch (Form: 1,200 sq.ft, Deed: 1,500 sq.ft)
+                      </button>
+                      <button type="button" class="btn-preset mismatch" onclick="fillRegisterPreset('survey_diff')">
+                        ⚠️ Sy No. Discrepancy (Form: 452/3, Deed: 99/2)
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Hidden Document Text Buffer for OCR analysis -->
+                  <textarea id="regDocumentText" style="display: none;"></textarea>
+                </div>
+
+                <button type="submit" class="btn-primary" id="btnSubmitRegistration" style="width: 100%;">
+                  <span>🚀</span> <span id="txtBtnRegisterSubmit">Process Land Application & Anchor on Blockchain</span>
+                </button>
+              </form>
+            </div>
+
+            <!-- Side Card: Live OCR & Fee Breakdown -->
+            <div>
+              <!-- Live OCR Pre-Check Box -->
+              <div class="card" id="ocrPreCheckCard">
+                <h3 class="card-title">🔍 AI Document OCR Pre-Check</h3>
+                <p class="card-subtitle">Automatic discrepancy detection against uploaded deeds</p>
+
+                <div id="ocrPreCheckContent">
+                  <div style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.85rem;">
+                    Upload a document or select a quick test preset above to see instant OCR extraction and mismatch alerts.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Instant Registration Fee Calculator Preview -->
+              <div class="card">
+                <h3 class="card-title">💰 Estimated Government Fees</h3>
+                <p class="card-subtitle">Karnataka Stamp Act guidance estimate</p>
+
+                <div class="fee-breakdown-row">
+                  <span class="ocr-key">Stamp Duty (5%)</span>
+                  <span class="ocr-val" id="prevStampDuty">₹0</span>
+                </div>
+                <div class="fee-breakdown-row">
+                  <span class="ocr-key">Registration Fee (1%)</span>
+                  <span class="ocr-val" id="prevRegFee">₹0</span>
+                </div>
+                <div class="fee-breakdown-row">
+                  <span class="ocr-key">Surcharge & Cess (10% of Duty)</span>
+                  <span class="ocr-val" id="prevCess">₹0</span>
+                </div>
+                <div class="fee-breakdown-row total">
+                  <span>Total Payable:</span>
+                  <span id="prevTotalFee">₹0</span>
+                </div>
+                <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 10px;">
+                  *Indicative calculation based on ₹2,500/sq.ft standard guidance rate. Verified at Sub-Registrar office.
+                </div>
+              </div>
+
+              <!-- Post-Submission ML & Blockchain Proof Card -->
+              <div class="card" id="postSubmitResultCard" style="display: none; border-color: var(--cyan);">
+                <h3 class="card-title" style="color: var(--cyan);">🎉 Registration Complete</h3>
+                <p class="card-subtitle">Cryptographic proof and ML risk verdict anchored</p>
+
+                <div style="margin-bottom: 14px;">
+                  <div style="font-size: 0.78rem; color: var(--text-muted);">ML Risk Verdict:</div>
+                  <div id="postResultVerdict" style="font-size: 1.2rem; font-weight: 800;">—</div>
+                </div>
+
+                <div style="margin-bottom: 14px;">
+                  <div style="font-size: 0.78rem; color: var(--text-muted);">Blockchain Tx Hash:</div>
+                  <div class="hash-text" id="postResultTxHash">—</div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 16px;">
+                  <button class="btn-primary" style="flex: 1;" onclick="viewCertificateFromLastSubmit()">
+                    📜 View Certificate
+                  </button>
+                  <button class="btn-secondary" onclick="viewTimelineFromLastSubmit()">
+                    ⏱️ Audit Timeline
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ──────────────────────────────────────────────
+             3. AI SMART DOCUMENT SCANNER
+             ────────────────────────────────────────────── -->
+        <section id="scanner" class="view-section">
+          <div class="view-header">
+            <div>
+              <h1 class="view-header-title">🔍 AI Smart Document Scanner & Mismatch Detector</h1>
+              <p class="view-header-desc">Inspect deed text, survey numbers, and extents to uncover discrepancies and tampering.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2 class="card-title">📄 Compare Document Extract vs Application Claims</h2>
+            <p class="card-subtitle">Example: Application says 1,200 sq. ft., but the uploaded document contains 1,500 sq. ft. The system flags the mismatch for review.</p>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              <div>
+                <h3 style="font-size: 0.95rem; margin-bottom: 10px; color: var(--cyan);">1. Claimed Application Data</h3>
+                <div class="form-group" style="margin-bottom: 12px;">
+                  <label for="scanClaimedArea">Claimed Area (sq. ft)</label>
+                  <input type="number" id="scanClaimedArea" value="1200">
+                </div>
+                <div class="form-group" style="margin-bottom: 12px;">
+                  <label for="scanClaimedSurvey">Claimed Survey Number</label>
+                  <input type="text" id="scanClaimedSurvey" value="452/3">
+                </div>
+                <div class="form-group" style="margin-bottom: 12px;">
+                  <label for="scanClaimedOwner">Claimed Owner Name</label>
+                  <input type="text" id="scanClaimedOwner" value="Ravi Kumar">
+                </div>
+              </div>
+
+              <div>
+                <h3 style="font-size: 0.95rem; margin-bottom: 10px; color: var(--cyan);">2. Document Content to Scan</h3>
+                <div class="form-group" style="margin-bottom: 12px;">
+                  <label for="scanDocumentText">Document Text Extract (or upload deed below)</label>
+                  <textarea id="scanDocumentText" rows="5" style="font-family: var(--font-mono); font-size: 0.8rem;">ABSOLUTE SALE DEED: Executed in Bengaluru. The vendor transfers title for land bearing Survey No: 452/3, measuring an extent of 1500 sq ft in favour of purchaser Ravi Kumar.</textarea>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                  <button type="button" class="btn-preset" onclick="setScannerPreset('genuine')">Load Genuine Extract</button>
+                  <button type="button" class="btn-preset mismatch" onclick="setScannerPreset('area_mismatch')">Load 1,500 sq.ft Mismatch</button>
+                  <button type="button" class="btn-preset mismatch" onclick="setScannerPreset('survey_mismatch')">Load Sy No Discrepancy</button>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top: 24px; text-align: center;">
+              <button class="btn-primary" onclick="runDocumentScannerTest()" style="padding: 12px 36px;">
+                <span>⚡</span> Run AI Document OCR Scan & Mismatch Analysis
+              </button>
+            </div>
+
+            <!-- Scanner Results Container -->
+            <div id="scannerResultsOutput" style="display: none; margin-top: 24px;">
+              <!-- Dynamic comparison populated by JS -->
+            </div>
+          </div>
+
+          <!-- Document Integrity & Tamper Proof Checker -->
+          <div class="card">
+            <h2 class="card-title">🛡️ Blockchain Document Integrity & Tamper Checker</h2>
+            <p class="card-subtitle">If someone alters a saved deed after its original hash was recorded, this verification immediately flags that the file no longer matches the blockchain ledger.</p>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              <div class="form-group">
+                <label for="verifyTamperLandId">Registered Land ID</label>
+                <select id="verifyTamperLandId" style="height: 45px;">
+                  <option value="KA-BLR-1001">KA-BLR-1001 (Devanahalli - Ramesh Gowda)</option>
+                  <option value="KA-BLR-1002">KA-BLR-1002 (Whitefield - Priya C)</option>
+                  <option value="KA-MYS-1003">KA-MYS-1003 (Mysuru - Anand Murthy)</option>
+                  <option value="KA-BLR-1004">KA-BLR-1004 (Electronic City - TechCorp)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="tamperTestMode">Test Document Condition</label>
+                <select id="tamperTestMode" style="height: 45px;">
+                  <option value="original">Original Unaltered Deed (SHA-256 matches blockchain)</option>
+                  <option value="tampered">Modified / Tampered Deed (Altered text / hash mismatch)</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="margin-top: 18px;">
+              <button class="btn-secondary" onclick="runBlockchainTamperCheck()">
+                <span>⛓️</span> Verify Cryptographic Document Integrity on Blockchain
+              </button>
+            </div>
+
+            <div id="tamperCheckOutput" style="display: none; margin-top: 18px;">
+              <!-- Output populated by JS -->
+            </div>
+          </div>
+        </section>
+
+        <!-- ──────────────────────────────────────────────
+             4. AI LAND FRAUD RISK CENTER
+             ────────────────────────────────────────────── -->
+        <section id="fraud" class="view-section">
+          <div class="view-header">
+            <div>
+              <h1 class="view-header-title">🚩 AI Land Fraud Risk Center & Officer Review</h1>
+              <p class="view-header-desc">Logistic Regression & Random Forest model outputs, confidence factors, and sub-registrar review workflows.</p>
+            </div>
+          </div>
+
+          <div class="fraud-dashboard-layout">
+            <!-- Left: Live Risk Meter Dial -->
+            <div class="risk-meter-box">
+              <h3 style="font-size: 1rem; color: var(--text-secondary); margin-bottom: 16px;">System Fraud Risk Meter</h3>
+
+              <div class="risk-circle-dial" id="fraudRiskDial">
+                <div class="risk-circle-inner">
+                  <span class="risk-pct-number" id="fraudDialPct">0%</span>
+                  <span class="risk-pct-label">Fraud Probability</span>
+                </div>
+              </div>
+
+              <div class="risk-verdict-tag genuine" id="fraudDialVerdict">LOW RISK</div>
+              <div class="confidence-indicator" id="fraudDialConfidence">Model Confidence: 95.4%</div>
+
+              <p style="font-size: 0.74rem; color: var(--text-muted); margin-top: 14px; line-height: 1.4;">
+                Important: a high risk score is an automated alert for verification officers, not conclusive legal proof of fraud.
+              </p>
+            </div>
+
+            <!-- Right: Explainability & Active Inspection -->
+            <div>
+              <div class="card">
+                <h3 class="card-title">🔍 Explainable AI Risk Factor Breakdown</h3>
+                <p class="card-subtitle">Key indicators evaluated by the LandSecure Random Forest ML model</p>
+
+                <div class="factors-grid">
+                  <div class="factor-card passed" id="factorArea">
+                    <div class="factor-icon">📐</div>
+                    <div class="factor-info">
+                      <span class="factor-name">Area Consistency</span>
+                      <span class="factor-status" id="factorAreaStatus">Within expected revenue range</span>
+                    </div>
+                  </div>
+
+                  <div class="factor-card passed" id="factorId">
+                    <div class="factor-icon">🆔</div>
+                    <div class="factor-info">
+                      <span class="factor-name">Owner ID Validity</span>
+                      <span class="factor-status" id="factorIdStatus">Aadhaar/PAN format verified</span>
+                    </div>
+                  </div>
+
+                  <div class="factor-card passed" id="factorSurvey">
+                    <div class="factor-icon">📍</div>
+                    <div class="factor-info">
+                      <span class="factor-name">Survey No. Cadastral Check</span>
+                      <span class="factor-status" id="factorSurveyStatus">Valid revenue sub-division</span>
+                    </div>
+                  </div>
+
+                  <div class="factor-card passed" id="factorDocs">
+                    <div class="factor-icon">📑</div>
+                    <div class="factor-info">
+                      <span class="factor-name">Document Completeness</span>
+                      <span class="factor-status" id="factorDocsStatus">Mandatory deeds attached</span>
+                    </div>
+                  </div>
+
+                  <div class="factor-card passed" id="factorOCR">
+                    <div class="factor-icon">👁️</div>
+                    <div class="factor-info">
+                      <span class="factor-name">OCR Consistency</span>
+                      <span class="factor-status" id="factorOCRStatus">Form matches uploaded deed</span>
+                    </div>
+                  </div>
+
+                  <div class="factor-card passed" id="factorOverlap">
+                    <div class="factor-icon">🗺️</div>
+                    <div class="factor-info">
+                      <span class="factor-name">Boundary Overlap</span>
+                      <span class="factor-status" id="factorOverlapStatus">No duplicate parcel polygon</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Officer Review & Action Panel -->
+              <div class="card" id="officerActionCard">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                  <div>
+                    <h3 class="card-title">⚖️ Verification Officer Review Console</h3>
+                    <p class="card-subtitle" style="margin-bottom: 0;">Authorized review actions for flagged or pending land records</p>
+                  </div>
+                  <span class="status-badge review" id="officerSelectedLandStatus">Select Application Below</span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;">
+                  <div class="form-group">
+                    <label for="reviewSelectLand">Select Application to Inspect</label>
+                    <select id="reviewSelectLand" onchange="loadLandForOfficerReview(this.value)">
+                      <option value="">-- Choose Application --</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="officerRemarks">Officer Remarks / Legal Notes</label>
+                    <input type="text" id="officerRemarks" placeholder="e.g. Field inspection completed by Revenue Inspector">
+                  </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; margin-top: 14px; flex-wrap: wrap;">
+                  <button class="btn-success" onclick="submitOfficerDecision('Approve')">
+                    ✅ Approve & Register Title
+                  </button>
+                  <button class="btn-secondary" onclick="submitOfficerDecision('Flag for Inspection')">
+                    🔍 Request Field Survey / Inspection
+                  </button>
+                  <button class="btn-danger" onclick="submitOfficerDecision('Reject')">
+                    ❌ Reject Application (Fraud / Inconsistent)
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ──────────────────────────────────────────────
+             5. INTERACTIVE LAND MAP
+             ────────────────────────────────────────────── -->
+        <section id="map" class="view-section">
+          <div class="view-header">
+            <div>
+              <h1 class="view-header-title">🗺️ Interactive Cadastral Land Map</h1>
+              <p class="view-header-desc">Display parcel boundaries using coordinates, survey numbers, and potential overlap warnings.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="map-controls-bar">
+              <input type="text" class="map-search-input" id="mapSurveySearchInput" placeholder="Search Survey Number (e.g. 452/3A, 108/2, 88/1B)...">
+              <button class="btn-primary" onclick="searchMapParcel()">🔍 Locate Parcel</button>
+              <button class="btn-secondary" onclick="resetMapView()">🌍 Center Bengaluru</button>
+            </div>
+
+            <!-- Leaflet Container -->
+            <div id="leafletMapContainer"></div>
+
+            <div class="map-legend">
+              <div class="legend-item">
+                <div class="legend-color" style="background: #10b981;"></div>
+                <span>Registered & Genuine</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color" style="background: #ef4444;"></div>
+                <span>Flagged for Fraud</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color" style="background: #f59e0b;"></div>
+                <span>Under Review</span>
+              </div>
+              <div class="legend-item" style="margin-left: auto;">
+                <span>*Showing demonstration cadastral parcels in Karnataka</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ──────────────────────────────────────────────
+             6. ALL LAND APPLICATIONS & REGISTRY
+             ────────────────────────────────────────────── -->
+        <section id="lands" class="view-section">
+          <div class="view-header">
+            <div>
+              <h1 class="view-header-title">📋 All Land Title Applications</h1>
+              <p class="view-header-desc">Filter, inspect, and verify every land record stored in the decentralized ledger.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <!-- Filter Bar -->
+            <div style="display: flex; gap: 14px; margin-bottom: 20px; flex-wrap: wrap;">
+              <input type="text" id="registrySearchInput" placeholder="Search by Land ID, owner name, or survey number..." style="flex: 2; min-width: 240px;">
+              <select id="registryStatusFilter" style="flex: 1; min-width: 160px;" onchange="filterLandsTable()">
+                <option value="ALL">All Statuses</option>
+                <option value="Registered">Registered (Genuine)</option>
+                <option value="Flagged for Fraud">Flagged for Fraud</option>
+                <option value="Under Review">Under Review</option>
+                <option value="Rejected">Rejected</option>
+              </select>
+              <select id="registryDistrictFilter" style="flex: 1; min-width: 160px;" onchange="filterLandsTable()">
+                <option value="ALL">All Districts</option>
+                <option value="Bengaluru Urban">Bengaluru Urban</option>
+                <option value="Bengaluru Rural">Bengaluru Rural</option>
+                <option value="Mysuru">Mysuru</option>
+              </select>
+            </div>
+
+            <div class="table-responsive">
+              <table id="allLandsTable">
+                <thead>
+                  <tr>
+                    <th>Land ID</th>
+                    <th>Survey No.</th>
+                    <th>Location / District</th>
+                    <th>Area</th>
+                    <th>Owner</th>
+                    <th>Owner ID</th>
+                    <th>Status</th>
+                    <th>Blockchain</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="allLandsTableBody">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ──────────────────────────────────────────────
+             7. BLOCKCHAIN EXPLORER
+             ────────────────────────────────────────────── -->
+        <section id="blockchain" class="view-section">
+          <div class="view-header">
+            <div>
+              <h1 class="view-header-title">⛓️ Blockchain Explorer & Document Proofs</h1>
+              <p class="view-header-desc">Inspect decentralized blocks, transaction hashes, and document integrity proofs.</p>
+            </div>
+          </div>
+
+          <div class="block-stat-row">
+            <div class="block-stat-item">
+              <div style="font-size: 0.74rem; color: var(--text-secondary); text-transform: uppercase;">Current Block Height</div>
+              <div style="font-size: 1.6rem; font-weight: 800; color: var(--cyan);" id="expCurrentBlock">#1422</div>
+            </div>
+            <div class="block-stat-item">
+              <div style="font-size: 0.74rem; color: var(--text-secondary); text-transform: uppercase;">Network Status</div>
+              <div style="font-size: 1.2rem; font-weight: 700; color: var(--success);" id="expNetwork">Hardhat Node / Ledger</div>
+            </div>
+            <div class="block-stat-item">
+              <div style="font-size: 0.74rem; color: var(--text-secondary); text-transform: uppercase;">Smart Contract</div>
+              <div class="hash-text" style="font-size: 0.75rem;">0x5FbDB2315678afecb367f032d93F642f64180aa3</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2 class="card-title">📜 Verified Blockchain Transactions</h2>
+            <p class="card-subtitle">Immutable log of land registrations, title transfers, and SHA-256 document notarizations</p>
+
+            <div class="table-responsive">
+              <table id="explorerTable">
+                <thead>
+                  <tr>
+                    <th>Block</th>
+                    <th>Event Type</th>
+                    <th>Land ID</th>
+                    <th>Transaction Hash (Tx)</th>
+                    <th>Participant</th>
+                    <th>Timestamp</th>
+                  </tr>
+                </thead>
+                <tbody id="explorerTableBody">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ──────────────────────────────────────────────
+             8. AUDIT & OWNERSHIP TIMELINE
+             ────────────────────────────────────────────── -->
+        <section id="timeline" class="view-section">
+          <div class="view-header">
+            <div>
+              <h1 class="view-header-title">📜 Land Ownership History & Audit Timeline</h1>
+              <p class="view-header-desc">Inspect the chronological lifecycle of applications, authorized reviews, and title mutations.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div style="display: flex; gap: 14px; margin-bottom: 24px; max-width: 600px;">
+              <input type="text" id="timelineSearchId" placeholder="Enter Land ID (e.g. KA-BLR-1001, KA-BLR-1002)..." style="flex: 1;">
+              <button class="btn-primary" onclick="loadAuditTimelineForParcel()">View Timeline</button>
+            </div>
+
+            <div id="timelineContainerArea">
+              <!-- Dynamically populated vertical timeline -->
+              <p style="color: var(--text-muted); padding: 20px 0;">Enter a Land ID above or click "Audit" on any application in the table.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ──────────────────────────────────────────────
+             9. SMART GOVERNMENT DOCUMENT CHECKLIST
+             ────────────────────────────────────────────── -->
+        <section id="checklist" class="view-section">
+          <div class="view-header">
+            <div>
+              <h1 class="view-header-title">📑 Smart Government Document Checklist</h1>
+              <p class="view-header-desc">Dynamic statutory requirements based on Karnataka Land Revenue Act 1964 and Registration Act 1908.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+              <div class="form-group">
+                <label for="chkTxType">Select Transaction Type (ವಹಿವಾಟಿನ ವಿಧ)</label>
+                <select id="chkTxType" onchange="renderGovernmentChecklist()">
+                  <option value="sale">Absolute Sale Deed (ಖರೀದಿ ಪತ್ರ)</option>
+                  <option value="gift">Gift Deed (ದಾನ ಪತ್ರ)</option>
+                  <option value="inheritance">Inheritance / Pouthi Khata (ವಾರಸುದಾರಿಕೆ ಖಾತೆ)</option>
+                  <option value="partition">Partition Deed (ವಿಭಾಗ ಪತ್ರ)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="chkPropType">Property Category (ಆಸ್ತಿಯ ವರ್ಗ)</label>
+                <select id="chkPropType" onchange="renderGovernmentChecklist()">
+                  <option value="agri">Agricultural Land (ಕೃಷಿ ಭೂಮಿ - Bhoomi RTC)</option>
+                  <option value="urban">Non-Agricultural / Urban (ನಗರಾಭಿವೃದ್ಧಿ - e-Khata)</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin: 16px 0;">
+              <h3 style="font-size: 1.05rem; color: var(--cyan);" id="chkCategoryTitle">Required Supporting Documents</h3>
+              <span style="font-size: 0.8rem; color: var(--text-muted);" id="chkCompletedRatio">0 of 5 Ready</span>
+            </div>
+
+            <div class="checklist-items" id="checklistItemsList">
+              <!-- Populated dynamically -->
+            </div>
+
+            <div style="background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 8px; padding: 14px; margin-top: 18px; font-size: 0.82rem; color: #93c5fd;">
+              <strong>Legal Note:</strong> Requirements compiled according to Section 128 of the Karnataka Land Revenue Act 1964 and Karnataka Stamp Act 1957. Missing mandatory documents will be flagged by the automated pre-checker before Sub-Registrar submission.
+            </div>
+          </div>
+        </section>
+
+        <!-- ──────────────────────────────────────────────
+             10. REGISTRATION FEE ESTIMATOR
+             ────────────────────────────────────────────── -->
+        <section id="fees" class="view-section">
+          <div class="view-header">
+            <div>
+              <h1 class="view-header-title">💰 Registration Fee & Stamp Duty Estimator</h1>
+              <p class="view-header-desc">Estimate applicable government fees under Karnataka Stamp Act rates.</p>
+            </div>
+          </div>
+
+          <div class="card" style="max-width: 800px;">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="feeArea">Property Extent (sq. ft)</label>
+                <input type="number" id="feeArea" value="1200" oninput="calculateGovFees()">
+              </div>
+
+              <div class="form-group">
+                <label for="feeGuidanceRate">Guidance Rate per sq. ft (₹)</label>
+                <input type="number" id="feeGuidanceRate" value="2500" oninput="calculateGovFees()">
+              </div>
+
+              <div class="form-group">
+                <label for="feeConsideration">Consideration Value / Sale Price (₹)</label>
+                <input type="number" id="feeConsideration" value="3000000" oninput="calculateGovFees()">
+              </div>
+
+              <div class="form-group">
+                <label for="feeJurisdiction">Local Jurisdiction</label>
+                <select id="feeJurisdiction" onchange="calculateGovFees()">
+                  <option value="bbmp">BBMP / City Corporation (ಬೆಂಗಳೂರು ಮಹಾನಗರ)</option>
+                  <option value="cmc">City Municipal Council (ನಗರ ಸಭೆ)</option>
+                  <option value="gram">Gram Panchayat (ಗ್ರಾಮ ಪಂಚಾಯತ್)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="fee-calc-box">
+              <h3 style="font-size: 1rem; color: var(--cyan); margin-bottom: 12px;">Detailed Fee Summary</h3>
+
+              <div class="fee-breakdown-row">
+                <span>Total Guidance Value</span>
+                <span class="ocr-val" id="calcGuidanceVal">₹30,00,000</span>
+              </div>
+              <div class="fee-breakdown-row">
+                <span>Calculated Stamp Duty (5.0%)</span>
+                <span class="ocr-val" id="calcStampDuty">₹1,50,000</span>
+              </div>
+              <div class="fee-breakdown-row">
+                <span>Registration Fee (1.0%)</span>
+                <span class="ocr-val" id="calcRegFee">₹30,000</span>
+              </div>
+              <div class="fee-breakdown-row">
+                <span>Surcharge & Infrastructure Cess (10% of Duty)</span>
+                <span class="ocr-val" id="calcCess">₹15,000</span>
+              </div>
+              <div class="fee-breakdown-row total">
+                <span>Estimated Total Government Dues:</span>
+                <span id="calcTotalDues">₹1,95,000</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ──────────────────────────────────────────────
+             11. KANNADA + ENGLISH CITIZEN ASSISTANT
+             ────────────────────────────────────────────── -->
+        <section id="assistant" class="view-section">
+          <div class="view-header">
+            <div>
+              <h1 class="view-header-title">🌐 Citizen Assistant & FAQ (ನಾಗರಿಕ ಸಹಾಯವಾಣಿ)</h1>
+              <p class="view-header-desc">Simple language guidance and step-by-step instructions in Kannada and English.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2 class="card-title">📖 Frequently Asked Questions (ಆಗಾಗ ಕೇಳಲಾಗುವ ಪ್ರಶ್ನೆಗಳು)</h2>
+            <p class="card-subtitle">Search or browse official revenue procedures</p>
+
+            <div class="form-group" style="margin-bottom: 20px;">
+              <input type="text" id="faqSearchInput" placeholder="Search guidance (e.g. RTC, Fraud, Stamp Duty, ದಾಖಲೆಗಳು)..." oninput="searchFAQ(this.value)">
+            </div>
+
+            <div id="faqAccordionArea" style="display: flex; flex-direction: column; gap: 12px;">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       MODAL 1: EMAIL OTP AUTHENTICATION
+       ══════════════════════════════════════════════ -->
+  <div class="modal-backdrop" id="authModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h2 class="modal-title">🔐 Role Sign-In via Email OTP</h2>
+        <button class="modal-close-btn" onclick="closeAuthModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.86rem; color: var(--text-secondary); margin-bottom: 20px;">
+          Select your portal role and authenticate securely with a 6-digit one-time password sent to your email.
+        </p>
+
+        <!-- Step 1: Request OTP -->
+        <div id="authStepRequest">
+          <div class="form-group" style="margin-bottom: 16px;">
+            <label for="authRoleSelect">Select Role</label>
+            <select id="authRoleSelect">
+              <option value="citizen">Citizen (ನಾಗರಿಕ)</option>
+              <option value="officer">Verification Officer (ಪರಿಶೀಲನಾ ಅಧಿಕಾರಿ)</option>
+              <option value="registrar">Sub-Registrar (ಉಪ-ನೋಂದಣಾಧಿಕಾರಿ)</option>
+              <option value="admin">System Administrator (ವ್ಯವಸ್ಥಾಪಕ)</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 20px;">
+            <label for="authEmailInput">Email Address</label>
+            <input type="email" id="authEmailInput" placeholder="name@example.com" value="officer.patil@karnataka.gov.in">
+          </div>
+
+          <button class="btn-primary" onclick="sendAuthOTP()" id="btnSendOTP" style="width: 100%;">
+            <span>📧</span> Send 6-Digit OTP to Email
+          </button>
+
+          <div style="margin-top: 10px; text-align: center;">
+            <button type="button" class="btn-secondary" onclick="instantDemoSignIn()" style="width: 100%; font-size: 0.84rem; padding: 10px 14px; border-color: rgba(0, 212, 255, 0.3);">
+              <span>⚡</span> Instant 1-Click Sign-In (Bypass OTP)
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 2: Verify OTP -->
+        <div id="authStepVerify" style="display: none;">
+          <div style="background: rgba(0, 212, 255, 0.08); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 18px; font-size: 0.85rem;">
+            Code sent to <strong id="authTargetEmailDisplay"></strong>. Valid for 10 minutes.
+            <div id="authDevOtpHint" style="font-weight: 700; color: var(--cyan); margin-top: 4px;"></div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 20px;">
+            <label for="authOtpInput">Enter 6-Digit Code</label>
+            <input type="text" id="authOtpInput" placeholder="123456" maxlength="6" style="font-family: var(--font-mono); font-size: 1.3rem; letter-spacing: 6px; text-align: center;">
+          </div>
+
+          <button class="btn-primary" onclick="verifyAuthOTP()" id="btnVerifyOTP" style="width: 100%;">
+            <span>✅</span> Verify Code & Sign In
+          </button>
+
+          <div style="text-align: center; margin-top: 14px;">
+            <button class="btn-secondary" onclick="resetAuthModal()" style="font-size: 0.8rem; padding: 6px 14px;">
+              &larr; Change Email
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       MODAL 2: OFFICIAL PROTOTYPE CERTIFICATE
+       ══════════════════════════════════════════════ -->
+  <div class="modal-backdrop" id="certModal">
+    <div class="modal-dialog" style="max-width: 680px;">
+      <div class="modal-header">
+        <h2 class="modal-title">📜 Land Title & Integrity Certificate</h2>
+        <button class="modal-close-btn" onclick="closeCertModal()">&times;</button>
+      </div>
+
+      <div class="modal-body" id="certPrintArea">
+        <div class="certificate-frame">
+          <div class="cert-prototype-stamp">PROTOTYPE ONLY</div>
+
+          <div class="cert-header">
+            <div class="cert-emblem">🏛️</div>
+            <div class="cert-govt-title">Government of Karnataka &bull; Department of Registration</div>
+            <div class="cert-main-title">Prototype Land Title & Document Integrity Certificate</div>
+          </div>
+
+          <p style="font-size: 13px; text-align: justify; line-height: 1.5; margin-bottom: 16px;">
+            This is to certify that the land parcel described below has been registered and anchored on the <strong>LandSecure Decentralized Blockchain Ledger</strong> with automated AI OCR document consistency verification and machine learning fraud risk screening.
+          </p>
+
+          <div class="cert-details-grid">
+            <div>
+              <div class="cert-item-label">Land Parcel ID</div>
+              <div class="cert-item-value" id="certLandId">—</div>
+            </div>
+            <div>
+              <div class="cert-item-label">Government Survey Number</div>
+              <div class="cert-item-value" id="certSurvey">—</div>
+            </div>
+            <div>
+              <div class="cert-item-label">Registered Owner</div>
+              <div class="cert-item-value" id="certOwner">—</div>
+            </div>
+            <div>
+              <div class="cert-item-label">Recorded Extent</div>
+              <div class="cert-item-value" id="certArea">—</div>
+            </div>
+            <div>
+              <div class="cert-item-label">District & Jurisdiction</div>
+              <div class="cert-item-value" id="certDistrict">—</div>
+            </div>
+            <div>
+              <div class="cert-item-label">Registration Status</div>
+              <div class="cert-item-value" id="certStatus">—</div>
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <div class="cert-item-label">SHA-256 Deed Integrity Hash</div>
+              <div class="cert-item-value" style="font-family: monospace; font-size: 11px; word-break: break-all;" id="certDocHash">—</div>
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <div class="cert-item-label">Blockchain Block & Transaction</div>
+              <div class="cert-item-value" style="font-family: monospace; font-size: 11px; word-break: break-all;" id="certTxHash">—</div>
+            </div>
+          </div>
+
+          <div class="cert-footer-row">
+            <div class="cert-qr-container" id="certQrBox"></div>
+            <div style="text-align: right; font-size: 12px;">
+              <div style="font-weight: 700;">Sub-Registrar Digital Seal</div>
+              <div style="color: #64748b; font-size: 10px;">Blockchain Timestamped</div>
+              <div style="margin-top: 6px; font-weight: 600; color: #1e3a8a;">Verified Authenticity</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 20px; justify-content: flex-end;">
+          <button class="btn-primary" onclick="window.print()">
+            <span>🖨️</span> Print / Save as PDF
+          </button>
+          <button class="btn-secondary" onclick="closeCertModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sh
